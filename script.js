@@ -3,10 +3,7 @@ let tasks=[], idN=0, editId=null, dragId=null;
 let curView='all', curTag='', curLayout='board', sortMode='none';
 let fPri=[], fDue=[], modalSubs=[], toastTimer;
 
-const TODAY = new Date().toISOString().slice(0,10);
-const YESTERDAY = new Date(Date.now()-86400000).toISOString().slice(0,10);
-const TOMORROW  = new Date(Date.now()+86400000).toISOString().slice(0,10);
-const NEXTWEEK  = new Date(Date.now()+5*86400000).toISOString().slice(0,10);
+
 
 // ── SEED ─────────────────────────────────────────────────────────
 [
