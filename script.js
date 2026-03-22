@@ -6,6 +6,18 @@ let fPri=[], fDue=[], modalSubs=[], toastTimer;
 const TODAY = new Date().toISOString().slice(0,10);
 const NEXTWEEK = new Date(Date.now()+5*86400000).toISOString().slice(0,10);
 
+// ── LOCALSTORAGE ──────────────────────────────────────────────────
+function saveTasks(){
+  localStorage.setItem('taskify-tasks', JSON.stringify(tasks));
+  localStorage.setItem('taskify-idn', JSON.stringify(idN));
+}
+function loadTasks(){
+  const saved=localStorage.getItem('taskify-tasks');
+  const savedN=localStorage.getItem('taskify-idn');
+  if(saved) tasks=JSON.parse(saved);
+  if(savedN) idN=JSON.parse(savedN);
+}
+
 // ── VIEW METADATA ─────────────────────────────────────────────────
 const VM={all:{t:'All Tasks',s:'Manage and track all your work'},today:{t:'Due Today',s:'Tasks that need attention right now'},overdue:{t:'Overdue',s:'Tasks past their deadline'},completed:{t:'Completed',s:'Tasks you have finished'},starred:{t:'Starred',s:'Your important tasks'}};
 
@@ -172,7 +184,13 @@ function drop(e){
   e.preventDefault();const col=e.currentTarget;col.classList.remove('drag-over');
   const id=parseInt(e.dataTransfer.getData('text/plain')),nc=col.dataset.col;
   const t=tasks.find(x=>x.id===id);
-  if(t&&t.col!==nc){t.col=nc;t.activity.push('Moved to '+(nc==='todo'?'To Do':nc==='progress'?'In Progress':'Done'));render();showToast(nc==='done'?'🎉 Completed!':'📦 Moved to '+(nc==='todo'?'To Do':nc==='progress'?'In Progress':'Done'));}
+  if(t&&t.col!==nc){
+    t.col=nc;
+    t.activity.push('Moved to '+(nc==='todo'?'To Do':nc==='progress'?'In Progress':'Done'));
+    saveTasks();
+    render();
+    showToast(nc==='done'?'🎉 Completed!':'📦 Moved to '+(nc==='todo'?'To Do':nc==='progress'?'In Progress':'Done'));
+  }
 }
 
 // ── ACTIONS ───────────────────────────────────────────────────────
@@ -181,18 +199,25 @@ function toggleDone(id,e){
   const t=tasks.find(x=>x.id===id);
   t.col=t.col==='done'?'todo':'done';
   t.activity.push(t.col==='done'?'Completed ✅':'Reopened');
-  render();showToast(t.col==='done'?'✅ Done!':'↩️ Reopened');
+  saveTasks();
+  render();
+  showToast(t.col==='done'?'✅ Done!':'↩️ Reopened');
 }
 function toggleStar(id,e){
   e.stopPropagation();
-  const t=tasks.find(x=>x.id===id);t.starred=!t.starred;
-  render();showToast(t.starred?'⭐ Starred':'Unstarred');
+  const t=tasks.find(x=>x.id===id);
+  t.starred=!t.starred;
+  saveTasks();
+  render();
+  showToast(t.starred?'⭐ Starred':'Unstarred');
 }
 function dupTask(id,e){
   e.stopPropagation();
   const t=tasks.find(x=>x.id===id);
   tasks.push({...JSON.parse(JSON.stringify(t)),id:++idN,title:'Copy of '+t.title,starred:false,activity:['Created (duplicate)']});
-  render();showToast('⧉ Task duplicated');
+  saveTasks();
+  render();
+  showToast('⧉ Task duplicated');
 }
 function editTask(id,e){
   if(e)e.stopPropagation();
@@ -212,7 +237,13 @@ function editTask(id,e){
 function askDel(id,e){
   if(e)e.stopPropagation();
   document.getElementById('conf-overlay').classList.add('open');
-  document.getElementById('conf-yes').onclick=()=>{tasks=tasks.filter(t=>t.id!==id);closeConf();render();showToast('🗑 Deleted');};
+  document.getElementById('conf-yes').onclick=()=>{
+    tasks=tasks.filter(t=>t.id!==id);
+    closeConf();
+    saveTasks();
+    render();
+    showToast('🗑 Deleted');
+  };
 }
 function closeConf(){document.getElementById('conf-overlay').classList.remove('open');}
 
@@ -242,7 +273,14 @@ function openDP(id){
   document.getElementById('dp-overlay').classList.add('open');
 }
 function closeDP(){document.getElementById('dp-overlay').classList.remove('open');}
-function toggleSubDP(tid,si){const t=tasks.find(x=>x.id===tid);t.subtasks[si].d=!t.subtasks[si].d;t.activity.push('Updated subtask');render();openDP(tid);}
+function toggleSubDP(tid,si){
+  const t=tasks.find(x=>x.id===tid);
+  t.subtasks[si].d=!t.subtasks[si].d;
+  t.activity.push('Updated subtask');
+  saveTasks();
+  render();
+  openDP(tid);
+}
 
 // ── MODAL ─────────────────────────────────────────────────────────
 function openModal(col){
@@ -281,9 +319,18 @@ function submitTask(){
   const title=document.getElementById('m-ttl').value.trim();
   if(!title){const el=document.getElementById('m-ttl');el.classList.add('shake');el.style.borderColor='var(--accent2)';setTimeout(()=>{el.classList.remove('shake');el.style.borderColor='';},500);return;}
   const data={title,desc:document.getElementById('m-dsc').value.trim(),col:document.getElementById('m-col').value,priority:document.getElementById('m-pri').value,tag:document.getElementById('m-tag').value,due:document.getElementById('m-due').value||null,subtasks:modalSubs};
-  if(editId){const t=tasks.find(x=>x.id===editId);Object.assign(t,data);t.activity.push('Edited');showToast('✏️ Updated');}
-  else{tasks.push({id:++idN,starred:false,activity:['Created'],...data});showToast('✨ Added');}
-  closeModal();render();
+  if(editId){
+    const t=tasks.find(x=>x.id===editId);
+    Object.assign(t,data);
+    t.activity.push('Edited');
+    showToast('✏️ Updated');
+  } else {
+    tasks.push({id:++idN,starred:false,activity:['Created'],...data});
+    showToast('✨ Added');
+  }
+  closeModal();
+  saveTasks();
+  render();
 }
 
 // ── HELPERS ───────────────────────────────────────────────────────
@@ -308,4 +355,6 @@ document.addEventListener('keydown',e=>{
   }
 });
 
+// ── INIT ──────────────────────────────────────────────────────────
+loadTasks();
 render();
