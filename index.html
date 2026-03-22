@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Taskify — Smart Task Manager</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app">
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">⚡</div>
+    <div class="logo-text">Task<span>ify</span></div>
+  </div>
+  <div class="sb-section">Views</div>
+  <button class="nav-item active" onclick="setView('all',this)"><span class="ni-icon">📋</span>All Tasks<span class="ni-count" id="cnt-all">0</span></button>
+  <button class="nav-item" onclick="setView('today',this)"><span class="ni-icon">☀️</span>Due Today<span class="ni-count" id="cnt-today">0</span></button>
+  <button class="nav-item" onclick="setView('overdue',this)"><span class="ni-icon">🔥</span>Overdue<span class="ni-count" id="cnt-over">0</span></button>
+  <button class="nav-item" onclick="setView('completed',this)"><span class="ni-icon">✅</span>Completed<span class="ni-count" id="cnt-done">0</span></button>
+  <button class="nav-item" onclick="setView('starred',this)"><span class="ni-icon">⭐</span>Starred<span class="ni-count" id="cnt-star">0</span></button>
+  <div class="sb-divider"></div>
+  <div class="sb-section">Tags</div>
+  <button class="tag-nav active" onclick="setTag('',this)"><div class="tdot" style="background:var(--text2)"></div>All tags</button>
+  <button class="tag-nav" onclick="setTag('design',this)"><div class="tdot" style="background:var(--accent)"></div>Design</button>
+  <button class="tag-nav" onclick="setTag('dev',this)"><div class="tdot" style="background:var(--done)"></div>Dev</button>
+  <button class="tag-nav" onclick="setTag('ux',this)"><div class="tdot" style="background:var(--accent2)"></div>UX</button>
+  <button class="tag-nav" onclick="setTag('content',this)"><div class="tdot" style="background:var(--prog)"></div>Content</button>
+  <button class="tag-nav" onclick="setTag('research',this)"><div class="tdot" style="background:#70b8ff"></div>Research</button>
+  <button class="tag-nav" onclick="setTag('bug',this)"><div class="tdot" style="background:var(--accent2)"></div>Bug</button>
+  <button class="tag-nav" onclick="setTag('feature',this)"><div class="tdot" style="background:var(--done)"></div>Feature</button>
+  <div class="sb-footer">
+    <div class="stats-grid">
+      <div class="stat-box"><div class="sv" id="sb-done">0</div><div class="sl">Done</div></div>
+      <div class="stat-box"><div class="sv" id="sb-rate">0%</div><div class="sl">Rate</div></div>
+      <div class="stat-box"><div class="sv" id="sb-streak">0</div><div class="sl">Streak</div></div>
+      <div class="stat-box"><div class="sv" id="sb-total">0</div><div class="sl">Total</div></div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div class="tb-left">
+      <h2 id="view-title">All Tasks</h2>
+      <p id="view-sub">Manage and track all your work</p>
+    </div>
+    <div class="tb-right">
+      <div class="search-wrap">
+        <span class="si">🔍</span>
+        <input type="text" id="search-input" placeholder="Search tasks…" oninput="render()">
+      </div>
+      <div class="view-toggle">
+        <button class="vt-btn active" id="vt-board" onclick="setLayout('board',this)" title="Board">⬛</button>
+        <button class="vt-btn" id="vt-list" onclick="setLayout('list',this)" title="List">☰</button>
+      </div>
+      <button class="sort-btn" onclick="cycleSort()"><span id="sort-icon">↕</span> <span id="sort-lbl">Sort</span></button>
+      <button class="filter-btn" id="fp-toggle" onclick="toggleFP()">⚡ Filter</button>
+      <button class="btn-new" onclick="openModal()">+ New Task</button>
+    </div>
+  </div>
+
+  <div class="filter-panel" id="filter-panel">
+    <div class="fp-row">
+      <span class="fp-lbl">Priority:</span>
+      <button class="fp-chip" data-fp="high" onclick="toggleFP2(this)">🔴 High</button>
+      <button class="fp-chip" data-fp="med" onclick="toggleFP2(this)">🟡 Med</button>
+      <button class="fp-chip" data-fp="low" onclick="toggleFP2(this)">🟢 Low</button>
+      <span class="fp-lbl" style="margin-left:8px">Due:</span>
+      <button class="fp-chip" data-fd="today" onclick="toggleFD(this)">Today</button>
+      <button class="fp-chip" data-fd="week" onclick="toggleFD(this)">This Week</button>
+      <button class="fp-chip" data-fd="over" onclick="toggleFD(this)">Overdue</button>
+      <button class="fp-reset" onclick="resetFilters()">Reset all</button>
+    </div>
+  </div>
+
+  <div class="overview">
+    <div class="ov-card c-todo"><div class="ov-num" id="ov-todo">0</div><div class="ov-lbl">To Do</div><div class="ov-bar"><div class="ov-fill" id="ovf-todo" style="width:0%"></div></div></div>
+    <div class="ov-card c-prog"><div class="ov-num" id="ov-prog">0</div><div class="ov-lbl">In Progress</div><div class="ov-bar"><div class="ov-fill" id="ovf-prog" style="width:0%"></div></div></div>
+    <div class="ov-card c-done"><div class="ov-num" id="ov-done">0</div><div class="ov-lbl">Completed</div><div class="ov-bar"><div class="ov-fill" id="ovf-done" style="width:0%"></div></div></div>
+    <div class="ov-card c-over"><div class="ov-num" id="ov-over">0</div><div class="ov-lbl">Overdue</div><div class="ov-bar"><div class="ov-fill" id="ovf-over" style="width:0%"></div></div></div>
+  </div>
+
+  <div class="board-area" id="board-area"></div>
+
+  <div class="kb-hints">
+    <span><kbd>N</kbd>New task</span>
+    <span><kbd>Esc</kbd>Close</span>
+    <span><kbd>/</kbd>Search</span>
+    <span><kbd>B</kbd>Board</span>
+    <span><kbd>L</kbd>List</span>
+    <span><kbd>S</kbd>Sort</span>
+  </div>
+</main>
+</div>
+
+<!-- MODAL -->
+<div class="overlay" id="overlay" onclick="ovClick(event)">
+<div class="modal">
+  <div class="m-header"><h2 id="m-title">New Task</h2><button class="m-close" onclick="closeModal()">✕</button></div>
+  <div class="fg"><label>Title *</label><input id="m-ttl" type="text" placeholder="What needs to be done?" maxlength="100"></div>
+  <div class="fg"><label>Description</label><textarea id="m-dsc" rows="2" placeholder="Add more context…"></textarea></div>
+  <div class="form-row">
+    <div class="fg"><label>Column</label><select id="m-col"><option value="todo">📋 To Do</option><option value="progress">⚙️ In Progress</option><option value="done">✅ Done</option></select></div>
+    <div class="fg"><label>Priority</label><select id="m-pri"><option value="high">🔴 High</option><option value="med" selected>🟡 Medium</option><option value="low">🟢 Low</option></select></div>
+  </div>
+  <div class="form-row">
+    <div class="fg"><label>Tag</label><select id="m-tag"><option value="design">Design</option><option value="dev">Dev</option><option value="ux">UX</option><option value="content">Content</option><option value="research">Research</option><option value="bug">Bug</option><option value="feature">Feature</option></select></div>
+    <div class="fg"><label>Due Date</label><input id="m-due" type="date"></div>
+  </div>
+  <div class="fg">
+    <label>Sub-tasks</label>
+    <div class="sub-inp-row"><input id="sub-inp" type="text" placeholder="Add a sub-task…" maxlength="80"><button class="btn-add-sub" onclick="addSub()">+ Add</button></div>
+    <div class="sub-list" id="sub-list"></div>
+  </div>
+  <div class="m-footer"><button class="btn-cancel" onclick="closeModal()">Cancel</button><button class="btn-save" onclick="submitTask()">Save Task</button></div>
+</div>
+</div>
+
+<!-- CONFIRM -->
+<div class="conf-overlay" id="conf-overlay">
+<div class="conf-box">
+  <h3>Delete Task?</h3><p>This action cannot be undone.</p>
+  <div class="conf-btns"><button class="btn-cn" onclick="closeConf()">Cancel</button><button class="btn-cy" id="conf-yes">Delete</button></div>
+</div>
+</div>
+
+<!-- DETAIL PANEL -->
+<div class="dp-overlay" id="dp-overlay">
+  <div class="dp-bg" onclick="closeDP()"></div>
+  <div class="dp-panel" id="dp-panel"></div>
+</div>
+
+<div id="toast"></div>
+<script src="script.js"></script>
+</body>
+</html>
