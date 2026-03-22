@@ -10,16 +10,7 @@ const NEXTWEEK  = new Date(Date.now()+5*86400000).toISOString().slice(0,10);
 
 // ── SEED ─────────────────────────────────────────────────────────
 [
-  {title:'Initial project planning',desc:'Define scope, assign roles, and set milestones for the quarter',col:'todo',tag:'content',priority:'high',due:TODAY,starred:true,subtasks:[{t:'Write project brief',d:true},{t:'Schedule kickoff',d:false},{t:'Assign owners',d:false}]},
-  {title:'Design system foundations',desc:'Build token library, component specs, and documentation site',col:'todo',tag:'design',priority:'med',due:TOMORROW,starred:false,subtasks:[{t:'Color tokens',d:false},{t:'Typography scale',d:false},{t:'Spacing grid',d:false}]},
-  {title:'User research interviews',desc:'Conduct 5 discovery sessions with target users',col:'todo',tag:'research',priority:'med',due:NEXTWEEK,starred:false,subtasks:[]},
-  {title:'Mobile UX flows',desc:'Prototype the core 3 user journeys on mobile',col:'todo',tag:'ux',priority:'high',due:YESTERDAY,starred:false,subtasks:[{t:'Login flow',d:false},{t:'Onboarding',d:false}]},
-  {title:'Fix authentication bug',desc:'Session token not refreshing correctly on Safari mobile — critical',col:'progress',tag:'bug',priority:'high',due:TODAY,starred:true,subtasks:[{t:'Reproduce issue',d:true},{t:'Write the fix',d:false},{t:'Test on devices',d:false}]},
-  {title:'Build analytics dashboard',desc:'Interactive charts with filters and export functionality',col:'progress',tag:'dev',priority:'high',due:NEXTWEEK,starred:false,subtasks:[{t:'Wireframe layout',d:true},{t:'Connect API',d:false},{t:'Add charts',d:false}]},
-  {title:'Write onboarding copy',desc:'Landing page hero, welcome emails, and tooltips',col:'progress',tag:'content',priority:'low',due:NEXTWEEK,starred:false,subtasks:[]},
-  {title:'Competitive analysis',desc:'Research 8 competitors, create feature comparison matrix',col:'done',tag:'research',priority:'med',due:YESTERDAY,starred:false,subtasks:[{t:'Identify competitors',d:true},{t:'Feature matrix',d:true},{t:'Executive summary',d:true}]},
-  {title:'Logo & brand identity',desc:'Final logo files in all formats delivered and approved',col:'done',tag:'design',priority:'high',due:YESTERDAY,starred:true,subtasks:[]},
-  {title:'CI/CD pipeline setup',desc:'GitHub Actions with automated test suite and deploy hooks',col:'done',tag:'dev',priority:'med',due:YESTERDAY,starred:false,subtasks:[{t:'Write workflow YAML',d:true},{t:'Add test step',d:true}]},
+  
 ].forEach(s=>tasks.push({id:++idN,activity:['Created'],starred:false,...s}));
 
 // ── VIEW METADATA ─────────────────────────────────────────────────
