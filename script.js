@@ -3,12 +3,8 @@ let tasks=[], idN=0, editId=null, dragId=null;
 let curView='all', curTag='', curLayout='board', sortMode='none';
 let fPri=[], fDue=[], modalSubs=[], toastTimer;
 
-
-
-// ── SEED ─────────────────────────────────────────────────────────
-[
-  
-].forEach(s=>tasks.push({id:++idN,activity:['Created'],starred:false,...s}));
+const TODAY = new Date().toISOString().slice(0,10);
+const NEXTWEEK = new Date(Date.now()+5*86400000).toISOString().slice(0,10);
 
 // ── VIEW METADATA ─────────────────────────────────────────────────
 const VM={all:{t:'All Tasks',s:'Manage and track all your work'},today:{t:'Due Today',s:'Tasks that need attention right now'},overdue:{t:'Overdue',s:'Tasks past their deadline'},completed:{t:'Completed',s:'Tasks you have finished'},starred:{t:'Starred',s:'Your important tasks'}};
